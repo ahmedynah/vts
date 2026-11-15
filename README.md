@@ -13,6 +13,8 @@
 - [Assumptions](#assumptions)
 - [Actors](#actors)
 - [Use Cases](#use-cases)
+- [Manager Dashboard](#manager-dashboard)
+- [Employee Dashboard](#employee-dashboard)
 
 ## Domain
 
@@ -123,3 +125,40 @@ each employee’s primary work location in addition to overall company policies 
   any rejection of leave time requests made by the rules in the system.
 - Back Up System Logs: Describes how the system administrator backs
   up the system’s logs.
+
+## Manager Dashboard
+
+The Manager Dashboard provides managers with a comprehensive view of their team's vacation requests and their own vacation balance. Key features include:
+
+- **My Vacation Balance**: Displays the manager's personal vacation, sick leave, and other time-off balances with remaining days
+- **My Vacation Requests**: Shows the manager's own vacation requests with the ability to create new requests or retrieve past requests
+- **Team Vacation Requests**: A centralized view of all pending and approved vacation requests from subordinates, with options to:
+  - Filter requests by status (All Requests, Pending, Approved, Rejected)
+  - Review employee details (name, request ID, leave type, dates, duration)
+  - Approve or reject pending requests
+  - View the status of previously processed requests
+
+This dashboard enables managers to efficiently manage their team's leave while tracking their own vacation time.
+
+![Manager Dashboard](VTS/system%20snapshots/Manager-Dashboard.png)
+
+## Employee Dashboard
+
+The Employee Dashboard is the primary interface for employees to manage their vacation time and track leave requests. Key features include:
+
+- **Personal Information**: Displays employee details including name, employee ID, department, and assigned manager
+- **Vacation Balance**: Shows available leave balances across different categories (Annual Leave, Sick Leave, Personal Leave) with:
+  - Used and total days allocated
+  - Days remaining for each category
+  - Dropdown to filter by vacation type
+- **My Vacation Requests**: Allows employees to:
+  - Create new vacation requests
+  - Retrieve and review their request history
+  - View request status (Pending, Approved, Rejected)
+  - Edit pending requests
+  - Withdraw approved requests
+  - Cancel pending requests
+
+The Employee Dashboard provides a user-friendly interface for employees to manage their leave without requiring expertise in company or facility leave policies.
+
+![Employee Dashboard](VTS/system%20snapshots/Employee-Dashboard.png)
