@@ -18,7 +18,7 @@ in the future.
 one of the categories of vacation time with a positive balance to use.
 4. The VTS prompts the employee for the date(s) and time for which to
 request vacation time. The employee should have access to a visual
-calendar to help select and compare chosen dates.CHAPTER 12 WEB APPLICATION: VACATION TRACKING SYSTEM 503
+calendar to help select and compare chosen dates.
 5. The employee selects the desired dates and hours per date (e.g., four
 hours might indicate a half-day vacation time request). The employee
 enters a short title and description (no more than a paragraph in length)
