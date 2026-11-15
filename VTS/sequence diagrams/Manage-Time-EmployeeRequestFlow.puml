@@ -1,0 +1,56 @@
+@startuml ManageTime-EmployeeRequestFlow
+title Manage Time - Employee Request Flow
+
+actor Employee as emp
+participant "Intranet Portal" as portal
+participant "VTS Application" as vts
+participant "VTS Database" as db
+participant "Email Service" as email
+participant "Manager" as mgr
+
+emp -> portal: Click VTS link from intranet
+portal -> vts: Redirect with employee credentials
+vts -> vts: Verify authentication
+
+vts -> db: Query employee vacation status\n(last 6 months + future 18 months)
+db -> vts: Return vacation requests & balances
+vts -> emp: Display vacation history\nand current balances
+
+emp -> vts: Select vacation type\n(with positive balance)
+emp -> vts: Request to create new request
+vts -> emp: Display calendar selection interface
+
+emp -> vts: Select dates/hours for vacation
+emp -> vts: Enter title & description
+emp -> emp: Review request details
+emp -> vts: Submit vacation request
+
+vts -> vts: Validate request data\n(dates, hours, balance)
+
+alt Validation Failed
+  vts -> vts: Identify errors
+  vts -> emp: Display form with errors highlighted
+  emp -> vts: Correct information or cancel
+  note right of emp: Loop back to date selection
+else Validation Successful
+  vts -> db: Create VacationRequest\n(status: PENDING_APPROVAL)
+  db -> db: Store request
+  db -> vts: Return request ID
+  
+  vts -> db: Update UserVacationBalance\n(deduct requested hours)
+  db -> vts: Confirm balance update
+  
+  alt Request requires manager approval
+    vts -> email: Send approval notification email
+    email -> mgr: Email with embedded approval link
+    note right of mgr: Manager receives notification
+  else Auto-approved request
+    vts -> db: Update request status\n(status: APPROVED)
+    note right of vts: Request auto-approved
+  end
+  
+  vts -> emp: Return to VTS home page\nwith confirmation message
+  emp -> emp: Request submitted successfully
+end
+
+@enduml

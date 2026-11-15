@@ -1,0 +1,70 @@
+@startuml ManageTime-ManagerApprovalFlow
+title Manage Time - Manager Approval Flow
+
+actor Manager as mgr
+participant "Email Notification" as email
+participant "Intranet Portal" as portal
+participant "VTS Application" as vts
+participant "VTS Database" as db
+participant "Email Service" as emailsvc
+actor Employee as emp
+
+mgr -> email: Receive approval notification\nor click link in email
+note right of email: Email contains embedded approval link\nor manager navigates manually
+
+mgr -> portal: Navigate to VTS portal
+alt Manager authentication required
+  portal -> mgr: Request credentials
+  mgr -> portal: Provide login credentials
+  portal -> vts: Verify authentication
+  vts -> vts: Validate manager credentials
+else Manager already authenticated
+  note right of mgr: Session already active
+end
+
+portal -> vts: Redirect to VTS home page
+
+vts -> db: Query manager's own vacation\nrequests & balances
+db -> vts: Return manager's vacation data
+vts -> vts: Query pending approval requests\nfor manager's subordinates
+db -> vts: Return pending VacationRequests
+vts -> mgr: Display VTS home page with:\n- Own requests\n- Pending approvals section
+
+mgr -> vts: Select pending request\nto review
+
+vts -> db: Fetch VacationRequest details
+db -> vts: Return request details\n(employee, dates, reason, balance info)
+vts -> mgr: Display request details\n& approval prompt
+
+mgr -> vts: Review request information
+alt Manager Approves Request
+  mgr -> vts: Click Approve button
+  vts -> vts: Mark request as approved
+  vts -> db: Update VacationRequest\n(status: APPROVED, approvedBy: managerId)
+  db -> db: Commit approval
+  db -> vts: Confirmation
+  vts -> emailsvc: Send approval notification
+  emailsvc -> emp: Email confirmation to employee
+  note right of emp: Employee notified of approval
+  
+else Manager Denies Request
+  mgr -> vts: Click Deny/Reject button
+  mgr -> vts: Enter rejection reason
+  vts -> vts: Validate rejection reason
+  vts -> db: Update VacationRequest\n(status: REJECTED, rejectionReason: text)
+  db -> db: Commit rejection
+  db -> vts: Confirmation
+  vts -> emailsvc: Send rejection notification
+  emailsvc -> emp: Email with rejection reason\nto employee
+  note right of emp: Employee notified of rejection
+end
+
+vts -> db: Update UserVacationBalance\n(if rejected: restore deducted hours)
+db -> vts: Balance updated
+
+vts -> mgr: Return to VTS home page
+mgr -> vts: May select another request\nto approve or manage\nown vacation time
+
+note right of mgr: Manager can review additional\npending requests or perform\nother VTS actions
+
+@enduml

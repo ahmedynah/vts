@@ -1,0 +1,89 @@
+@startuml ManageTime-CompleteFlow
+title Manage Time - Complete End-to-End Flow
+
+actor Employee as emp
+participant "Intranet Portal" as portal
+participant "VTS Application" as vts
+participant "VTS Database" as db
+participant "Email Service" as email
+actor Manager as mgr
+
+== Employee Request Phase ==
+
+emp -> portal: 1. Click VTS link from intranet
+portal -> vts: 2. Redirect with credentials
+vts -> db: 3. Query vacation history & balances
+vts -> emp: 4. Display vacation info\n(last 6mo + future 18mo)
+
+emp -> vts: 5. Select vacation category
+emp -> vts: 6. Open calendar interface
+emp -> vts: 7. Select dates & hours\n+ title & description
+emp -> vts: 8. Submit request
+
+vts -> vts: 9a. Validate request data
+alt Validation Fails
+  vts -> emp: 9b. Show errors, allow correction
+  emp -> vts: Correct & resubmit
+else Validation Passes
+  vts -> db: 10. Create VacationRequest\n(PENDING_APPROVAL status)
+  db -> vts: Confirm creation
+  vts -> db: 11. Update UserVacationBalance
+  db -> vts: Balance deducted
+  
+  alt Auto-Approval Policy
+    vts -> db: 12a. Auto-approve request
+    db -> vts: Status changed to APPROVED
+  else Requires Manager Approval
+    vts -> email: 12b. Send notification email
+    email -> mgr: Approval request with link
+  end
+  
+  vts -> emp: 13. Return to home page\nwith confirmation
+end
+
+== Manager Approval Phase ==
+
+mgr <- email: 14. Receive approval email\n(or manual navigation)
+mgr -> portal: 15. Navigate to VTS\n(via email link or manual)
+
+alt Authentication Needed
+  portal -> mgr: 16a. Request credentials
+  mgr -> portal: 16b. Login
+  portal -> vts: Verify credentials
+else Already Authenticated
+  note right of mgr: Skip to step 17
+end
+
+vts -> db: 17. Query pending requests\nfor manager's subordinates
+db -> vts: Return pending requests list
+vts -> mgr: 18. Display pending approvals
+
+mgr -> vts: 19. Select request to review
+vts -> db: 20. Fetch request details
+db -> vts: Return full request info
+vts -> mgr: 21. Display request details\n& decision prompt
+
+mgr -> vts: 22a. Approve or 22b. Reject
+
+alt Manager Approves
+  vts -> db: 23a. Update status to APPROVED
+  db -> vts: Approval recorded
+  note right of db: Vacation balance remains deducted
+else Manager Rejects
+  vts -> mgr: 23b. Prompt for rejection reason
+  mgr -> vts: Enter rejection reason
+  vts -> db: Update status to REJECTED\n+ store rejection reason
+  db -> vts: Rejection recorded
+  vts -> db: 24b. Restore UserVacationBalance
+  db -> vts: Balance restored
+end
+
+vts -> email: 24. Send result notification
+email -> emp: Decision email\n(approval or rejection)
+
+vts -> mgr: 25. Return to home page
+mgr -> vts: May process other pending\nrequests or manage own time
+
+emp -> emp: 26. Receive decision notification
+
+@enduml

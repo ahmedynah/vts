@@ -1,0 +1,131 @@
+@startuml VTS-ERD
+!theme plain
+skinparam linetype ortho
+skinparam classBackgroundColor #FFFFFF
+skinparam classBorderColor #000000
+skinparam classArrowColor #000000
+skinparam backgroundColor #FFFFFF
+
+' Entity: Employee
+entity Employee {
+  * id : UUID/INT
+  --
+  * firstName : VARCHAR(100)
+  * lastName : VARCHAR(100)
+  * email : VARCHAR(255) [UNIQUE]
+  managerId : INT/UUID [FK -> Employee.id]
+  * createdAt : TIMESTAMP
+  * updatedAt : TIMESTAMP
+}
+
+' Entity: Vacation
+entity Vacation {
+  * id : UUID/INT
+  --
+  * type : ENUM(Annual, Sick, Unpaid)
+  * numberOfDays : INT
+  * createdAt : TIMESTAMP
+  * updatedAt : TIMESTAMP
+}
+
+' Entity: UserVacationBalance
+entity UserVacationBalance {
+  * id : UUID/INT
+  --
+  * employeeId : INT/UUID [FK]
+  * vacationId : INT/UUID [FK]
+  * vacationType : VARCHAR(50)
+  * numberOfRemainingDays : DECIMAL(5,2)
+  * validUntil : DATE
+  * createdAt : TIMESTAMP
+  * updatedAt : TIMESTAMP
+}
+
+' Entity: VacationRequest
+entity VacationRequest {
+  * id : UUID/INT
+  --
+  * employeeId : INT/UUID [FK]
+  * vacationId : INT/UUID [FK]
+  * vacationBalanceId : INT/UUID [FK]
+  * managerId : INT/UUID [FK]
+  * approvalStatusId : INT/UUID [FK]
+  * title : VARCHAR(255)
+  description : TEXT
+  * startDate : TIMESTAMP
+  * endDate : TIMESTAMP
+  isAutoApproved : BOOLEAN
+  rejectionReason : TEXT
+  approvedBy : INT/UUID [FK]
+  * submittedBy : INT/UUID [FK]
+  * createdAt : TIMESTAMP
+  * createdBy : INT/UUID [FK]
+  * updatedAt : TIMESTAMP
+  * updatedBy : INT/UUID [FK]
+  approvedAt : TIMESTAMP
+}
+
+' Entity: ApprovalStatus
+entity ApprovalStatus {
+  * id : UUID/INT
+  --
+  * statusName : VARCHAR(50) [UNIQUE]
+  description : TEXT
+  * createdAt : TIMESTAMP
+  * updatedAt : TIMESTAMP
+}
+
+' Entity: AllowedNextStatus
+entity AllowedNextStatus {
+  * statusId : INT/UUID [FK/PK]
+  * allowedNextStatusId : INT/UUID [FK/PK]
+  --
+  * createdAt : TIMESTAMP
+  * updatedAt : TIMESTAMP
+}
+
+' Relationships
+
+' Employee to Employee (Manager self-reference)
+Employee ||--o| Employee : "manages\n(managerId)"
+
+' Employee to UserVacationBalance
+Employee ||--o{ UserVacationBalance : "has"
+
+' Vacation to UserVacationBalance
+Vacation ||--o{ UserVacationBalance : "defines"
+
+' Employee to VacationRequest (as requestor)
+Employee ||--o{ VacationRequest : "requests\n(employeeId)"
+
+' Employee to VacationRequest (as manager)
+Employee ||--o{ VacationRequest : "reviews\n(managerId)"
+
+' Employee to VacationRequest (as approvedBy)
+Employee ||--o{ VacationRequest : "approves\n(approvedBy)"
+
+' Employee to VacationRequest (as submittedBy)
+Employee ||--o{ VacationRequest : "submits\n(submittedBy)"
+
+' Employee to VacationRequest (as createdBy)
+Employee ||--o{ VacationRequest : "creates\n(createdBy)"
+
+' Employee to VacationRequest (as updatedBy)
+Employee ||--o{ VacationRequest : "updates\n(updatedBy)"
+
+' Vacation to VacationRequest
+Vacation ||--o{ VacationRequest : "specifies"
+
+' UserVacationBalance to VacationRequest
+UserVacationBalance ||--o{ VacationRequest : "tracks"
+
+' ApprovalStatus to VacationRequest
+ApprovalStatus ||--o{ VacationRequest : "has\nstatus\n(approvalStatusId)"
+
+' ApprovalStatus to AllowedNextStatus (source status)
+ApprovalStatus ||--o{ AllowedNextStatus : "has as\nsource\n(statusId)"
+
+' ApprovalStatus to AllowedNextStatus (target status)
+ApprovalStatus ||--o{ AllowedNextStatus : "has as\ntarget\n(allowedNextStatusId)"
+
+@enduml
