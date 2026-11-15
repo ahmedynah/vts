@@ -6,6 +6,16 @@ skinparam classBorderColor #000000
 skinparam classArrowColor #000000
 skinparam backgroundColor #FFFFFF
 
+' Entity: EmployeeType
+entity EmployeeType {
+  * id : UUID/INT
+  --
+  * type : ENUM(Employee, Manager, Clerk, SysAdmin)
+  description : TEXT
+  * createdAt : TIMESTAMP
+  * updatedAt : TIMESTAMP
+}
+
 ' Entity: Employee
 entity Employee {
   * id : UUID/INT
@@ -14,6 +24,7 @@ entity Employee {
   * lastName : VARCHAR(100)
   * email : VARCHAR(255) [UNIQUE]
   managerId : INT/UUID [FK -> Employee.id]
+  * empTypeId : INT/UUID [FK]
   * createdAt : TIMESTAMP
   * updatedAt : TIMESTAMP
 }
@@ -79,12 +90,18 @@ entity ApprovalStatus {
 entity AllowedNextStatus {
   * statusId : INT/UUID [FK/PK]
   * allowedNextStatusId : INT/UUID [FK/PK]
+  * permittedEmpTypeId : INT/UUID [FK/PK]
   --
+  * createdBy : INT/UUID [FK]
   * createdAt : TIMESTAMP
+  * updatedBy : INT/UUID [FK]
   * updatedAt : TIMESTAMP
 }
 
 ' Relationships
+
+' EmployeeType to Employee
+EmployeeType ||--o{ Employee : "defines"
 
 ' Employee to Employee (Manager self-reference)
 Employee ||--o| Employee : "manages\n(managerId)"
@@ -121,6 +138,15 @@ UserVacationBalance ||--o{ VacationRequest : "tracks"
 
 ' ApprovalStatus to VacationRequest
 ApprovalStatus ||--o{ VacationRequest : "has\nstatus\n(approvalStatusId)"
+
+' EmployeeType to AllowedNextStatus
+EmployeeType ||--o{ AllowedNextStatus : "permits\n(permittedEmpTypeId)"
+
+' Employee to AllowedNextStatus (createdBy)
+Employee ||--o{ AllowedNextStatus : "creates\n(createdBy)"
+
+' Employee to AllowedNextStatus (updatedBy) - Note: Same relationship represented differently
+Employee ||--o{ AllowedNextStatus : "updates\n(updatedBy)"
 
 ' ApprovalStatus to AllowedNextStatus (source status)
 ApprovalStatus ||--o{ AllowedNextStatus : "has as\nsource\n(statusId)"

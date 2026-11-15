@@ -1,7 +1,7 @@
 ## Manage Time Use Case
 ---
-#### Use case name: Manage Time
-#### Actor:
+#### Title: Manage Time
+#### Actor(s):
 - Employee
 #### Goal:
 -  The employee wishes to submit a new request for vacation time.

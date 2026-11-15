@@ -4,8 +4,13 @@ Employee
  - lastName
  - email (unique)
  - managerId (fk - employee)
+ - empTypeId (fk - employee)
  - createdAt
  - updatedAt
+
+EmployeeType
+- id
+- type (enum - e.g., Employee, Manager, Clerk, SysAdmin)
 
 vacation
 - id
@@ -50,3 +55,8 @@ ApprovalStatus
 AllowedNextStatus (composite PK)
 - statusId (fk/pk - ApprovalStatus) 
 - allowedNextStatusId (fk/pk - ApprovalStatus)
+- permittedEmpTypeId (fk - employeeType)
+- createdBy (fk - employee)
+- createdAt
+- updatedBy (fk - employee)
+- updatedAt

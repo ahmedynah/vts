@@ -1,0 +1,43 @@
+@startuml Withdraw Request Alternate Flow - State Diagram
+title Withdraw Request Alternate Flow - State Diagram
+
+[*] --> Authenticated
+
+Authenticated --> ViewHome: Navigate to VTS
+
+ViewHome --> ViewBalance: Display request summary\nand balances
+
+ViewBalance --> SelectRequest: Employee selects\npending request
+
+SelectRequest --> PendingApproval: Request status:\nPending Approval
+
+PendingApproval --> ConfirmWithdraw: VTS prompts for\nconfirmation
+
+ConfirmWithdraw --> EmployeeConfirms: Employee confirms\nwithdraw request
+
+EmployeeConfirms --> Withdrawn: Request removed from\nmanager's pending list
+
+Withdrawn --> NotifyManager: Notification email\nsent to manager
+
+NotifyManager --> UpdateState: Request state changed\nto withdrawn
+
+UpdateState --> ViewHome: Return to home page
+
+ViewHome --> [*]
+
+note right of PendingApproval
+  Precondition: Request must be
+  pending approval from manager
+end note
+
+note right of Withdrawn
+  Request is no longer in
+  manager's approval queue
+end note
+
+note right of UpdateState
+  System marks the request
+  as withdrawn in database
+end note
+
+@enduml

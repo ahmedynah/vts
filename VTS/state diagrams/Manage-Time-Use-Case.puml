@@ -1,0 +1,64 @@
+@startuml Manage Time Use Case - State Diagram
+title Manage Time Use Case - State Diagram
+
+[*] --> Authenticated
+
+Authenticated --> ViewHome: Navigate to VTS
+
+ViewHome --> ViewBalance: Display employee balance\nand request history
+
+ViewBalance --> SelectCategory: Employee selects\nvacation time category
+
+SelectCategory --> EnterDetails: VTS prompts for\ndates and times
+
+EnterDetails --> ValidateInput: Employee enters\ndetails and submits
+
+ValidateInput --> ErrorState: Validation fails
+ValidateInput --> CreateRequest: Validation passes
+
+ErrorState --> EnterDetails: Re-display with errors\nEmployee can edit
+
+CreateRequest --> PendingApproval: Request placed in\npending approval state
+
+PendingApproval --> NotificationSent: Email sent to manager
+
+NotificationSent --> ManagerNotified: Manager receives email
+
+ManagerNotified --> ManagerViewHome: Manager logs in\nand accesses VTS
+
+ManagerViewHome --> ReviewRequests: VTS displays requests\npending approval
+
+ReviewRequests --> ReviewDetails: Manager selects\nand views request
+
+ReviewDetails --> ApprovalDecision: Manager reviews details
+
+ApprovalDecision --> Approved: Manager approves\nrequest
+
+ApprovalDecision --> Rejected: Manager rejects\nrequest with explanation
+
+Approved --> UpdateState: Internal state changed\nto approved
+
+Rejected --> UpdateState: Internal state changed\nto rejected
+
+UpdateState --> NotifyEmployee: Email notification\nsent to employee
+
+NotifyEmployee --> ManagerHome: Manager returns to\nhome page
+
+ManagerHome --> [*]
+
+Approved --> EmployeeNotified: Employee notified
+Rejected --> EmployeeNotified: Employee notified
+
+EmployeeNotified --> [*]
+
+note right of CreateRequest
+  Request moves from draft
+  to pending approval state
+end note
+
+note right of ApprovalDecision
+  Manager must provide
+  explanation if rejecting
+end note
+
+@enduml

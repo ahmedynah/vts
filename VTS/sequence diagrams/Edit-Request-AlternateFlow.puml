@@ -1,0 +1,56 @@
+@startuml Edit-Request-AlternateFlow
+title Edit Pending Request - Alternate Flow
+
+actor Employee as emp
+participant "Intranet Portal" as portal
+participant "VTS Application" as vts
+participant "VTS Database" as db
+
+emp -> portal: Click VTS link from intranet
+portal -> vts: Redirect with employee credentials
+vts -> vts: Verify authentication
+
+vts -> db: Query employee vacation requests\n(last 6 months + future 18 months)
+db -> vts: Return all vacation requests & statuses
+vts -> emp: Display vacation request summary\nand current statuses
+
+emp -> vts: Select a pending vacation request\nto edit
+note right of emp: Request status: PENDING_APPROVAL
+
+vts -> db: Retrieve full request details
+db -> vts: Return request data\n(title, dates, comments, etc.)
+vts -> emp: Display editable request view\n(title, dates, comments, deletion, withdrawal options)
+
+emp -> emp: Review current request data
+emp -> vts: Modify request information\n(title, comments, and/or dates)
+
+note right of emp: Employee can also choose to:\n- Delete request\n- Withdraw request\n- Submit changes
+
+emp -> vts: Submit modified request information
+
+alt Employee chose to withdraw
+  vts -> vts: Prompt for withdrawal confirmation
+  emp -> vts: Confirm withdrawal action
+  vts -> db: Update request status to WITHDRAWN
+  db -> vts: Confirm status update
+  vts -> emp: Return to VTS home page
+  note right of vts: Request withdrawn successfully
+  
+else Employee submitted information changes
+  vts -> vts: Validate updated request data\n(dates, hours, balance)
+  
+  alt Validation Failed
+    vts -> vts: Identify validation errors
+    vts -> emp: Redisplay editing page\nwith errors highlighted and explained
+    note right of emp: Employee can correct information
+  else Validation Successful
+    vts -> db: Update VacationRequest\nwith modified information\n(title, comments, dates, etc.)
+    db -> db: Store updated request
+    db -> vts: Confirm update
+    
+    vts -> emp: Return to VTS home page\nwith confirmation message
+    emp -> emp: Request updated successfully
+  end
+end
+
+@enduml

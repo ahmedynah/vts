@@ -1,0 +1,67 @@
+@startuml Cancel-Approved-Request-AlternateFlow
+title Cancel Approved Request - Alternate Flow
+
+actor Employee as emp
+participant "Intranet Portal" as portal
+participant "VTS Application" as vts
+participant "VTS Database" as db
+participant "Email Service" as email
+participant "Manager" as mgr
+
+emp -> portal: Click VTS link from intranet
+portal -> vts: Redirect with employee credentials
+vts -> vts: Verify authentication
+
+vts -> db: Query employee vacation requests\n(last 6 months + future 18 months)
+db -> vts: Return all vacation requests & statuses
+vts -> emp: Display vacation request summary\nand current statuses
+
+emp -> vts: Select an approved vacation request\nto cancel
+note right of emp: Request status: APPROVED\n(in future or recent past - within 5 business days)
+
+vts -> db: Retrieve full request details
+db -> vts: Return request data\n(dates, status, approval info)
+vts -> vts: Check request timing\n(future or recent past?)
+
+alt Request is in the future
+  vts -> emp: Prompt for cancellation confirmation
+  emp -> emp: Review request details
+  emp -> vts: Confirm cancellation action
+  note right of emp: No explanation required
+  
+else Request is in recent past (within 5 business days)
+  vts -> emp: Prompt for cancellation confirmation\nand request explanation
+  emp -> emp: Review request details
+  emp -> vts: Provide cancellation explanation\nand confirm cancellation action
+  note right of emp: Explanation required for past requests
+end
+
+vts -> vts: Validate cancellation conditions\n(request is approved and within timeframe)
+
+alt Cancellation Validation Failed
+  vts -> vts: Identify validation error\n(e.g., request too far in past)
+  vts -> emp: Display error message
+  note right of vts: Cancellation not allowed
+  
+else Cancellation Validation Successful
+  vts -> db: Update request status to CANCELED\n(status: CANCELED)
+  db -> db: Store updated request
+  db -> vts: Confirm status update
+  
+  vts -> db: Return deducted vacation hours\nto employee balance
+  db -> db: Restore vacation time allowance
+  db -> vts: Confirm balance restoration
+  
+  vts -> email: Send cancellation notification to manager
+  email -> mgr: Email notification:\nApproved request has been canceled\nby employee
+  note right of mgr: Manager notified of cancellation
+  
+  vts -> db: Update employee vacation summaries
+  db -> vts: Confirm summary update
+  
+  vts -> emp: Return to VTS home page
+  emp -> emp: Cancellation successful
+  emp -> vts: Review updated summaries\n(balances and request status)
+end
+
+@enduml

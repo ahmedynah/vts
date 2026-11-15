@@ -1,0 +1,66 @@
+@startuml Edit Request Alternate Flow - State Diagram
+title Edit Request Alternate Flow - State Diagram
+
+[*] --> Authenticated
+
+Authenticated --> ViewHome: Navigate to VTS
+
+ViewHome --> ViewBalance: Display request summary\nand balances
+
+ViewBalance --> SelectRequest: Employee selects\npending request
+
+SelectRequest --> PendingApprovalState: Request status:\nPending Approval
+
+PendingApprovalState --> EditableView: VTS displays editable\nview of request
+
+EditableView --> EmployeeEdits: Employee can modify:\ntitle, comments, dates
+
+EmployeeEdits --> SubmitChanges: Employee submits\nchanges
+
+SubmitChanges --> WithdrawDecision: Employee chooses to\nwithdraw request?
+
+WithdrawDecision --> ConfirmWithdraw: Yes - Confirm withdraw
+WithdrawDecision --> ValidateChanges: No - Validate changes
+
+ConfirmWithdraw --> PromptConfirm: VTS prompts for\nconfirmation
+
+PromptConfirm --> WithdrawConfirmed: Withdraw confirmed
+
+WithdrawConfirmed --> Withdrawn: Request withdrawn\nfrom pending approvals
+
+Withdrawn --> ReturnHome: Return to home page
+
+ValidateChanges --> ValidationPasses: Changes are valid
+ValidateChanges --> ValidationFails: Changes have errors
+
+ValidationPasses --> AcceptChanges: Changes accepted
+
+AcceptChanges --> ReturnHome: Return to home page
+
+ValidationFails --> RedisplayEdit: Redisplay edit page\nwith errors highlighted
+
+RedisplayEdit --> EmployeeEdits: Employee reviews\nand corrects errors
+
+ReturnHome --> [*]
+
+note right of PendingApprovalState
+  Precondition: Request must be
+  pending approval
+end note
+
+note right of EmployeeEdits
+  Employee can edit title,
+  comments, or dates
+end note
+
+note right of ValidateChanges
+  Changes must pass system
+  validation rules
+end note
+
+note right of Withdrawn
+  Request removed from
+  manager's queue
+end note
+
+@enduml

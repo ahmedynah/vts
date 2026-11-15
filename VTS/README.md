@@ -83,6 +83,11 @@
 - The system will be used in an environment with reliable network connectivity.
 - Users will have basic knowledge of how to interact with web-based applications.
 - The system will comply with organizational policies and legal requirements regarding leave management.
+- All employees work eight-hour days.
+- Each employee’s vacation time requests are subject to the restrictions of
+each employee’s primary work location in addition to overall company policies and restrictions.
+- Vacation time request validation rules are defined and owned by the HR
+  department
 
 ## Actors ( 4 Actors):
 

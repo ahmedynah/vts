@@ -1,0 +1,59 @@
+@startuml Cancel Approved Request Alternate Flow - State Diagram
+title Cancel Approved Request Alternate Flow - State Diagram
+
+[*] --> Authenticated
+
+Authenticated --> ViewHome: Navigate to VTS
+
+ViewHome --> ViewBalance: Display request summary\nand balances
+
+ViewBalance --> SelectRequest: Employee selects\napproved request
+
+SelectRequest --> ApprovedState: Request status:\nApproved
+
+ApprovedState --> CheckTiming: Check request timing
+
+CheckTiming --> FutureRequest: Request is in the future
+CheckTiming --> RecentPastRequest: Request is in recent past\n(previous 5 business days)
+
+FutureRequest --> ConfirmCancel: VTS prompts for\nconfirmation only
+
+RecentPastRequest --> ConfirmCancelWithExpl: VTS prompts for confirmation\nAND explanation required
+
+ConfirmCancel --> EmployeeConfirms: Employee confirms
+
+ConfirmCancelWithExpl --> EmployeeConfirms: Employee confirms\nand provides explanation
+
+EmployeeConfirms --> Canceled: Request state changed\nto canceled
+
+EmployeeConfirms --> AbortCancel: Employee aborts\ncancellation
+
+AbortCancel --> NoChanges: No changes made\nto requests
+
+Canceled --> ReturnTime: Time allowances\nreturned to employee
+
+ReturnTime --> NotifyManager: Notification email\nsent to manager
+
+NotifyManager --> UpdateHome: Return to home page\nwith updated summaries
+
+NoChanges --> UpdateHome: Return to home page
+
+UpdateHome --> [*]
+
+note right of ApprovedState
+  Precondition: Request must be
+  approved and scheduled for
+  future or recent past
+end note
+
+note right of RecentPastRequest
+  Cancellations within 5 business days
+  require justification
+end note
+
+note right of ReturnTime
+  Used time allowances are
+  restored to employee balance
+end note
+
+@enduml

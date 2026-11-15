@@ -1,0 +1,47 @@
+@startuml Withdraw-Request-AlternateFlow
+title Withdraw Request - Alternate Flow
+
+actor Employee as emp
+participant "Intranet Portal" as portal
+participant "VTS Application" as vts
+participant "VTS Database" as db
+participant "Email Service" as email
+participant "Manager" as mgr
+
+emp -> portal: Click VTS link from intranet
+portal -> vts: Redirect with employee credentials
+vts -> vts: Verify authentication
+
+vts -> db: Query employee vacation requests\n(last 6 months + future 18 months)
+db -> vts: Return all vacation requests & statuses
+vts -> emp: Display vacation request summary\nand current statuses
+
+emp -> vts: Select a pending vacation request\nto withdraw
+note right of emp: Request status: PENDING_APPROVAL
+
+vts -> vts: Retrieve full request details
+vts -> emp: Display request details\nand withdrawal confirmation prompt
+
+emp -> emp: Review request details
+emp -> vts: Confirm withdrawal action
+
+vts -> vts: Validate withdrawal conditions\n(request is still pending)
+
+alt Withdrawal Validation Failed
+  vts -> vts: Identify validation error\n(e.g., request no longer pending)
+  vts -> emp: Display error message
+  note right of vts: Request cannot be withdrawn
+else Withdrawal Validation Successful
+  vts -> db: Update request status to WITHDRAWN\n(status: WITHDRAWN)
+  db -> db: Store updated request
+  db -> vts: Confirm status update
+  
+  vts -> email: Send withdrawal notification to manager
+  email -> mgr: Email notification:\nRequest has been withdrawn\nby employee
+  note right of mgr: Manager notified of withdrawal
+  
+  vts -> emp: Return to VTS home page\nwith confirmation message
+  emp -> emp: Withdrawal successful
+end
+
+@enduml

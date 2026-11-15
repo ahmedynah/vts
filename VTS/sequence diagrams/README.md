@@ -1,7 +1,7 @@
-# Manage Time Use Case - Sequence Diagrams
+# Vacation Tracking System (VTS) - Sequence Diagrams
 
 ## Overview
-This directory contains three comprehensive sequence diagrams that illustrate the "Manage Time" use case from the Vacation Tracking System (VTS). These diagrams detail the interactions between employees, managers, the VTS application, the database, and the email service.
+This directory contains comprehensive sequence diagrams for the Vacation Tracking System (VTS). The diagrams illustrate the main "Manage Time" use case flows as well as three alternate flows. These diagrams detail the interactions between employees, managers, the VTS application, the database, and the email service.
 
 ---
 
@@ -194,6 +194,124 @@ These sequence diagrams directly implement all flows described in the Manage Tim
 
 ---
 
+---
+
+## 4. Withdraw Request Alternate Flow (`Withdraw-Request-AlternateFlow.puml`)
+
+**Purpose:** Illustrates the process of an employee withdrawing a pending vacation request before manager approval.
+
+### Key Participants:
+- **Employee** - Initiates withdrawal
+- **Intranet Portal** - Entry point to VTS
+- **VTS Application** - Core business logic
+- **VTS Database** - Persistent data storage
+- **Email Service** - Notification delivery
+- **Manager** - Receives withdrawal notification
+
+### Main Interactions:
+1. Employee accesses VTS home page and views vacation request summary
+2. Employee selects a pending vacation request (status: PENDING_APPROVAL)
+3. VTS displays full request details and withdrawal confirmation prompt
+4. Employee confirms withdrawal action
+5. System validates withdrawal conditions
+   - **If validation fails:** Display error (e.g., request no longer pending)
+   - **If validation succeeds:** Proceed with withdrawal
+6. Request status is updated to WITHDRAWN
+7. Email notification is sent to the manager
+8. Employee returns to VTS home page with confirmation message
+
+### Key Features:
+- Simple withdrawal confirmation workflow
+- Request must still be in PENDING_APPROVAL status
+- Manager is notified of withdrawal
+- No balance restoration needed (request was never approved)
+
+---
+
+## 5. Edit Pending Request Alternate Flow (`Edit-Request-AlternateFlow.puml`)
+
+**Purpose:** Illustrates the process of an employee editing a pending vacation request before manager approval.
+
+### Key Participants:
+- **Employee** - Initiates edit
+- **Intranet Portal** - Entry point to VTS
+- **VTS Application** - Core business logic
+- **VTS Database** - Persistent data storage
+
+### Main Interactions:
+1. Employee accesses VTS home page and views vacation request summary
+2. Employee selects a pending vacation request (status: PENDING_APPROVAL)
+3. VTS displays editable view of the request (title, dates, comments)
+4. Employee can:
+   - Modify request information (title, comments, dates)
+   - Choose to delete the request
+   - Choose to withdraw the request
+5. Employee submits changes
+6. If employee chose withdrawal:
+   - Prompt for confirmation
+   - Update status to WITHDRAWN
+   - Return to home page
+7. If employee submitted information changes:
+   - Validate updated request data
+   - **If validation fails:** Redisplay editing page with errors highlighted
+   - **If validation succeeds:** Store updated information and return to home page
+
+### Key Features:
+- Edit title, comments, and dates
+- Embedded withdrawal/deletion options
+- Full data validation with error highlighting
+- No balance recalculation (request still pending)
+
+---
+
+## 6. Cancel Approved Request Alternate Flow (`Cancel-Approved-Request-AlternateFlow.puml`)
+
+**Purpose:** Illustrates the process of an employee canceling an already-approved vacation request.
+
+### Key Participants:
+- **Employee** - Initiates cancellation
+- **Intranet Portal** - Entry point to VTS
+- **VTS Application** - Core business logic
+- **VTS Database** - Persistent data storage
+- **Email Service** - Notification delivery
+- **Manager** - Receives cancellation notification
+
+### Main Interactions:
+1. Employee accesses VTS home page and views vacation request summary
+2. Employee selects an approved vacation request to cancel
+   - Request must be in the future OR within the last 5 business days (recent past)
+3. VTS checks request timing:
+   - **If future:** Prompt for cancellation confirmation only
+   - **If recent past:** Prompt for confirmation AND explanation
+4. Employee confirms cancellation (and provides explanation if required)
+5. System validates cancellation conditions
+   - **If validation fails:** Display error (e.g., request too far in past)
+   - **If validation succeeds:** Proceed with cancellation
+6. Request status is updated to CANCELED
+7. Vacation time allowance is restored to employee balance
+8. Email notification is sent to the manager
+9. Employee vacation summaries are updated
+10. Employee returns to VTS home page with updated summaries
+
+### Key Features:
+- Cancellation allowed for future requests and recent past (within 5 business days)
+- Explanation required for past-dated cancellations
+- Automatic balance restoration when canceled
+- Manager notification of cancellation
+- Updated summaries reflect balance changes
+
+---
+
+## Alternate Flows Summary
+
+| Alternate Flow | Triggered From | Initial Status | Final Status | Key Action |
+|---|---|---|---|---|
+| Withdraw Request | Pending Request | PENDING_APPROVAL | WITHDRAWN | Removes from manager's approval queue |
+| Edit Pending Request | Pending Request | PENDING_APPROVAL | PENDING_APPROVAL (or WITHDRAWN if edited) | Allows modification of request details |
+| Cancel Approved Request | Approved Request | APPROVED | CANCELED | Cancels future/recent vacation; restores balance |
+
+---
+
 ## Notes for Development
 
 1. **Email Service:** Consider implementing email queuing for reliability
@@ -204,3 +322,7 @@ These sequence diagrams directly implement all flows described in the Manage Tim
 6. **Error Handling:** Implement graceful error messages and recovery options
 7. **Auto-approval Policy:** Make this configurable at the company level
 8. **Manager Assignment:** Ensure proper manager-employee relationships are maintained
+9. **Withdrawal Audit:** Track withdrawn requests for reporting and compliance
+10. **Edit History:** Consider tracking edits to pending requests for audit purposes
+11. **Cancellation Deadline:** Implement business logic to enforce the 5-business-day recent-past window
+12. **Explanation Storage:** Store cancellation explanations for past-dated requests for audit trail
