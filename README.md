@@ -4,6 +4,7 @@
 
 ## Contents
 
+- [Introduction](#introduction)
 - [Domain](#domain)
 - [Vision](#vision)
 - [Features](#features)
@@ -15,6 +16,10 @@
 - [Use Cases](#use-cases)
 - [Manager Dashboard](#manager-dashboard)
 - [Employee Dashboard](#employee-dashboard)
+
+## Introduction
+
+The Vacation Tracking System (VTS) is designed to streamline the management of employee vacation time, sick leave, and personal time off. It provides employees with the ability to manage their own leave requests while enabling managers to approve or reject these requests efficiently. The system aims to improve accuracy, compliance, and overall efficiency in leave management.
 
 ## Domain
 
